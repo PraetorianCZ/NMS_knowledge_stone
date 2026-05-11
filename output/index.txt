@@ -1,6 +1,6 @@
-# atlas.txt
-# autophage.txt
-# gek.txt
-# korvax.txt
-# vykeen.txt
-czech.txt
+atlas.txt
+autophage.txt
+gek.txt
+korvax.txt
+vykeen.txt
+#czech.txt
