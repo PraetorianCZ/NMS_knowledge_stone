@@ -1,0 +1,7 @@
+# Jen soubory, ktere v teto slozce opravdu jsou (na GitHubu dopln dalsi radky)
+atlas.txt
+autophage.txt
+gek.txt
+korvax.txt
+vykeen.txt
+
