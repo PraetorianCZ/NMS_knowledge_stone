@@ -3,4 +3,3 @@ autophage.txt
 gek.txt
 korvax.txt
 vykeen.txt
-#czech.txt
