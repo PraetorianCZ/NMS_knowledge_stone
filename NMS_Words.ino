@@ -676,6 +676,8 @@ static void drawWordBackdrop(void) {
 }
 
 static uint16_t sLastAccent565 = TFT_WHITE;
+/** After blank-gap backdrop was drawn once; reset when next cycle is scheduled. */
+static bool sBlankGapPainted = false;
 
 /** Circular ring (NMS_ACCENT_BORDER_PX thick) at panel edge — same RGB565 as word / NeoPixel accent. */
 static void nmsDrawAccentBorder(uint16_t color565) {
@@ -745,7 +747,7 @@ static uint16_t accentForRace(const String& race) {
   return TFT_WHITE;
 }
 
-static void showWord(const String& race, const String& english, const String& alien) {
+static void showWord(const String& race, const String& english, const String& alien, bool drawBackdropFirst = true) {
   const int cx = tft.width() / 2;
   const int margin = 14;
   const int maxW = tft.width() - 2 * margin;
@@ -763,7 +765,9 @@ static void showWord(const String& race, const String& english, const String& al
   const String lineB = nmsTftSanitize(race) + String(" word for");
   const String quoted = String("'") + nmsTftSanitize(english) + "'";
 
-  drawWordBackdrop();
+  if (drawBackdropFirst) {
+    drawWordBackdrop();
+  }
   const int yA = drawWordAlienOnly(cx, alienTopY, maxW, alienDraw, accent, alienGlow);
 
   tft.setTextSize(NMS_SENTENCE_TEXT_SIZE);
@@ -919,19 +923,24 @@ void loop() {
   if (nextFetchAtMs != 0 && ms < nextFetchAtMs) {
     const uint32_t blankStartMs = nextFetchAtMs - blankGapMsEffective;
     if (blankGapMsEffective > 0 && ms >= blankStartMs) {
-      drawWordBackdrop();
-      nmsDrawAccentBorder(sLastAccent565);
+      if (!sBlankGapPainted) {
+        drawWordBackdrop();
+        nmsDrawAccentBorder(sLastAccent565);
+        sBlankGapPainted = true;
+      }
     }
     delay(50);
     return;
   }
 
-  drawWordBackdrop();
-  nmsDrawAccentBorder(sLastAccent565);
+  if (!sBlankGapPainted) {
+    drawWordBackdrop();
+    nmsDrawAccentBorder(sLastAccent565);
+  }
 
   String en, alien, raceLb;
   if (nmsFetchRandomWordFromGithub(en, alien, raceLb)) {
-    showWord(raceLb, en, alien);
+    showWord(raceLb, en, alien, false);
     logInfo(String("[") + raceLb + "] " + en + " = " + alien);
 
     const uint32_t delaySec = nmsPickRandomWordDelaySec();
@@ -944,6 +953,7 @@ void loop() {
 
     const uint32_t afterShowMs = millis();
     nextFetchAtMs = afterShowMs + periodMs;
+    sBlankGapPainted = false;
 
     logInfo(String("Next word in ") + delaySec + " s; backdrop-only for " + (blankGapMsEffective / 1000) +
             " s before next fetch");
@@ -953,6 +963,7 @@ void loop() {
     nmsDrawAccentBorder(sLastAccent565);
     blankGapMsEffective = 0;
     nextFetchAtMs = millis() + 60000;
+    sBlankGapPainted = true;
   }
 
   delay(50);
