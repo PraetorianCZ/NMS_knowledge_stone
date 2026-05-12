@@ -1,4 +1,4 @@
-# NMS hourly words (ESP32-C3 + GC9A01)
+# NMS Words (ESP32-C3 + GC9A01)
 
 Lolin C3 Super Mini + 1.28″ round TFT — shows a random **English / alien** word pair on a schedule.
 
