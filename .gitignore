@@ -1,0 +1,17 @@
+# Local configuration
+nms_config.h
+
+# macOS
+.DS_Store
+
+# Editor / IDE
+*.swp
+*~
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
