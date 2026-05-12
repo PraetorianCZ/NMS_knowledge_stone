@@ -11,11 +11,11 @@
 
 
 // New word will show in a random interval betweet min and max
-#define NMS_WORD_RANDOM_MIN_SEC 30L
+#define NMS_WORD_RANDOM_MIN_SEC 60L
 #define NMS_WORD_RANDOM_MAX_SEC 300L
 
 // Show only background before new word
-#define NMS_BACKGROUND_GAP_SEC 10L
+#define NMS_BACKGROUND_GAP_SEC 50L
 
 #ifndef NMS_SHOW_CLOCK
 #define NMS_SHOW_CLOCK 1
