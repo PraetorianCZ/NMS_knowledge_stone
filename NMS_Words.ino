@@ -1,5 +1,4 @@
-// No Man's Sky — hourly random word on ESP32-C3 + round TFT (GC9A01).
-// Words load only from GitHub RAW: folder must contain index.txt and referenced tab-separated .txt files.
+// NMS_Words — ESP32-C3 + round TFT (GC9A01). Words from GitHub RAW only.
 #include "nms_config.h"
 
 #ifndef NMS_SHOW_CLOCK

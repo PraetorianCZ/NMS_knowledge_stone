@@ -1,10 +1,10 @@
-# NMS Words (ESP32-C3 + GC9A01)
+# NMS_Words (ESP32-C3 + GC9A01)
 
 Lolin C3 Super Mini + 1.28″ round TFT — shows a random **English / alien** word pair on a schedule.
 
 **Timing:** After each word, the next one appears after a **uniform random delay** between **`NMS_WORD_RANDOM_MIN_SEC`** and **`NMS_WORD_RANDOM_MAX_SEC`**. In the last **`NMS_BACKGROUND_GAP_SEC`** seconds before each GitHub fetch, only the **backdrop** is shown (no text); NeoPixel colour stays the **previous word’s** accent until the new word is drawn. While HTTPS is loading, the screen also shows **backdrop only** (no “…”).
 
-**Word source:** GitHub **RAW** only. The sketch downloads `index.txt` from `NMS_GITHUB_WORDS_BASE_URL`, picks a random listed `.txt` file, then a random tab-separated line (`english<TAB>alien`).
+**Word source:** GitHub **RAW** only. The sketch downloads `index.txt` from `NMS_GITHUB_WORDS_BASE_URL`, picks a random listed `.txt` file, then a random tab-separated line (`english<TAB>alien`). Layout details: [`nms_languages/github_words/LAYOUT.txt`](../nms_languages/github_words/LAYOUT.txt) when that folder exists in your checkout.
 
 Use a **RAW** URL (`https://raw.githubusercontent.com/user/repo/branch/folder`). Browser `github.com/.../blob/...` links return HTML; the firmware can rewrite blob/tree URLs to RAW, but setting RAW directly is clearest.
 
@@ -23,7 +23,7 @@ Configure SPI pins in TFT_eSPI (`User_Setup.h` or `User_Setup_Select.h`):
 
 Install **TFT_eSPI** and **Adafruit NeoPixel** in Arduino IDE or PlatformIO.
 
-Sketch: **`nms_hourly_words.ino`**.
+Sketch: **`NMS_Words.ino`** (Arduino sketch folder must match the `.ino` name).
 
 NeoPixel colour tracks the **race accent** (same RGB as the alien word): set **`LED_PIN`**, **`LED_COUNT`**, and optionally **`NMS_LED_BRIGHTNESS`** (`0`–`255`) in `nms_config.h`.
 
@@ -54,20 +54,20 @@ Built-in GLCD fonts do not include Czech (or other) accented glyphs. **`nms_tft_
 
 ## Related repo tools (optional)
 
-To **generate offline word `.txt` files** from the Fandom wiki (for publishing to your GitHub repo), use scripts under `nms_languages/` — see `fetch_and_build.py` and `tools/build_embedded_words.py`. The ESP sketch **no longer** embeds those lists in flash; it only reads from GitHub RAW as described above.
+To **generate offline word `.txt` files** from the Fandom wiki (for publishing to your GitHub repo), use scripts under `nms_languages/` when present in your tree — see `fetch_and_build.py` and `tools/build_embedded_words.py`. **NMS_Words** loads lists from GitHub RAW only; it does not embed PROGMEM word blobs.
 
 ## Security (short)
 
 - Keep **`nms_config.h`** out of public git (Wi-Fi password). Serial log prints SSID and connection status — avoid sharing raw logs if that matters.
 - HTTPS uses **`setInsecure()`** (no CA verification). Use **`setCACert()`** if you need stronger TLS on untrusted networks.
-- GitHub mode only accepts a **`raw.githubusercontent.com`** base and safe relative paths from `index.txt` (no `..`). Response size is capped (`NMS_HTTPS_MAX_BODY_BYTES` in the `.ino`).
+- GitHub mode only accepts a **`raw.githubusercontent.com`** base and safe relative paths from `index.txt` (no `..`). Response size is capped (`NMS_HTTPS_MAX_BODY_BYTES` in **`NMS_Words.ino`**).
 
 ## Git and GitHub
 
-The repo **`.gitignore`** excludes `nms_config.h`. After clone:
+The repo **`.gitignore`** excludes `nms_config.h`. After clone, open this folder as the Arduino sketch **`NMS_Words`** (folder name must match `NMS_Words.ino`), then:
 
 ```bash
-cp nms_hourly_words/nms_config.example.h nms_hourly_words/nms_config.h
+cp nms_config.example.h nms_config.h
 ```
 
 Fill in Wi-Fi and `NMS_GITHUB_WORDS_BASE_URL`.
@@ -75,7 +75,7 @@ Fill in Wi-Fi and `NMS_GITHUB_WORDS_BASE_URL`.
 ### First push (empty GitHub repo)
 
 1. Create an empty repo at [github.com/new](https://github.com/new).
-2. From the project root:
+2. From the repository root (same folder as `NMS_Words.ino`):
 
 ```bash
 git init
@@ -92,11 +92,7 @@ Use a **Personal Access Token** for HTTPS if prompted.
 ### Stop tracking `nms_config.h` if it was committed once
 
 ```bash
-git rm --cached nms_hourly_words/nms_config.h
+git rm --cached nms_config.h
 git commit -m "Stop tracking nms_config.h"
 git push
 ```
-# NMS_knowledge_stone
-# NMS_knowledge_stone
-# NMS_knowledge_stone
-# NMS_knowledge_stone

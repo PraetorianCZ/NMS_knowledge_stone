@@ -38,7 +38,7 @@
 // Optional nms_bg565.h: swap RGB565 bytes for pushImage if colours are wrong
 // #define NMS_BG565_PUSH_SWAP_BYTES 0
 
-// Optional HTTPS response size cap is defined in nms_hourly_words.ino (NMS_HTTPS_MAX_BODY_BYTES)
+// Optional HTTPS response size cap is defined in NMS_Words.ino (NMS_HTTPS_MAX_BODY_BYTES)
 
 // NeoPixel ring/strip (Adafruit_NeoPixel): pin, pixel count, optional brightness 0–255
 // #define LED_COUNT 8
