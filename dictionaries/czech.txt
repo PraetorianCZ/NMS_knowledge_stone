@@ -1,0 +1,6 @@
+počet	count
+řídit	drive
+švestka	plum
+pět	five
+šest	six
+stříkačka	injection
