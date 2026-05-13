@@ -873,6 +873,7 @@ static void ensureWiFi() {
   }
 }
 
+
 void setup() {
   sSetupPhaseUi = true;
   sTftBootLogReady = false;
