@@ -1,3 +1,4 @@
+
 # NMS_Words (ESP32-C3 + GC9A01)
 
 Lolin C3 Super Mini + 1.28″ round TFT — shows a random **English / alien** word pair on a schedule.
@@ -15,6 +16,8 @@ Use a **RAW** URL (`https://raw.githubusercontent.com/user/repo/branch/folder`).
 - **Library:** TFT_eSPI (Bodmer)
 
 Configure SPI pins in TFT_eSPI (`User_Setup.h` or `User_Setup_Select.h`):
+
+<img width="896" height="954" alt="knowledgeStone_schema" src="https://github.com/user-attachments/assets/08a275e8-c83d-4395-8ae4-674ef2016287" />
 
 - `#define GC9A01_DRIVER`
 - Correct `TFT_MOSI`, `TFT_SCLK`, `TFT_CS`, `TFT_DC`, `TFT_RST`, optional `TFT_BL`
