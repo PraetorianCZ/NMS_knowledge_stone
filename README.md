@@ -1,5 +1,5 @@
 
-# NMS_Words (ESP32-C3 + GC9A01)
+# NMS Words (ESP32-C3 mini + 1.28" TFT display with GC9A01 + Neopixel LEDs)
 
 Lolin C3 Super Mini + 1.28″ round TFT — shows a random **English / alien** word pair on a schedule.
 
