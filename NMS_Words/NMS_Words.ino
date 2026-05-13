@@ -24,6 +24,7 @@
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <ctype.h>
+#include <cstring>
 #include <math.h>
 #include <time.h>
 #include <Adafruit_NeoPixel.h>
@@ -61,14 +62,11 @@ static void nmsNeoPixelSetAccent(uint16_t tftRgb565) {
   strip.show();
 }
 
-// ----- Serial logging -----
-static void logLine(const char* level, const String& msg) {
-  Serial.printf("[%10lu][%s] %s\n", (unsigned long)millis(), level, msg.c_str());
-  Serial.flush();
-}
+// Boot status: centered lines on the round TFT during setup only (no Serial).
+static void nmsStatusLogImpl(const char* level, const String& msg);
+static void logLine(const char* level, const String& msg) { nmsStatusLogImpl(level, msg); }
 static void logInfo(const String& msg) { logLine("INFO", msg); }
 static void logWarn(const String& msg) { logLine("WARN", msg); }
-static void logErr(const String& msg) { logLine("ERR", msg); }
 
 // TLS does not verify server certificates (common on ESP32). Use setCACert() if you need MITM protection.
 #ifndef NMS_HTTPS_MAX_BODY_BYTES
@@ -82,7 +80,6 @@ static bool nmsHttpsGetBodyUa(const String& url, String& bodyOut, const char* us
   HTTPClient http;
   http.setTimeout(20000);
   if (!http.begin(client, url)) {
-    logErr(String("http.begin failed: ") + url);
     return false;
   }
   if (userAgent != nullptr && userAgent[0] != '\0') {
@@ -90,13 +87,11 @@ static bool nmsHttpsGetBodyUa(const String& url, String& bodyOut, const char* us
   }
   const int code = http.GET();
   if (code != 200) {
-    logErr(String("HTTP ") + String(code) + " " + url);
     http.end();
     return false;
   }
   const int len = http.getSize();
   if (len > 0 && len > (int)NMS_HTTPS_MAX_BODY_BYTES) {
-    logErr(String("HTTP body too large: ") + len);
     http.end();
     return false;
   }
@@ -351,13 +346,8 @@ static bool nmsFetchRandomWordFromGithub(String& englishOut, String& alienOut, S
   alienOut = "";
   raceLabelOut = "Gek";
 
-  const String configuredBase = String(NMS_GITHUB_WORDS_BASE_URL);
-  const String baseRaw = nmsGithubWordsBaseRaw(configuredBase);
-  if (baseRaw != configuredBase) {
-    logInfo(String("GitHub base normalized to RAW: ") + baseRaw);
-  }
+  const String baseRaw = nmsGithubWordsBaseRaw(String(NMS_GITHUB_WORDS_BASE_URL));
   if (!nmsGithubRawBaseOk(baseRaw)) {
-    logErr("GitHub: NMS_GITHUB_WORDS_BASE_URL must be https://raw.githubusercontent.com/... (no credentials in URL)");
     return false;
   }
 
@@ -368,7 +358,6 @@ static bool nmsFetchRandomWordFromGithub(String& englishOut, String& alienOut, S
   }
   String relPath;
   if (!nmsPickRandomIndexPath(indexBody, relPath)) {
-    logErr("GitHub index.txt: no valid path lines");
     return false;
   }
   const String fileUrl = nmsUrlJoin(baseRaw, relPath);
@@ -377,11 +366,9 @@ static bool nmsFetchRandomWordFromGithub(String& englishOut, String& alienOut, S
     return false;
   }
   if (!nmsPickRandomTabLine(fileBody, englishOut, alienOut)) {
-    logErr(String("No TAB-separated line in ") + relPath);
     return false;
   }
   raceLabelOut = nmsRaceLabelFromWordPath(relPath);
-  logInfo(String("GitHub words: file=") + relPath + " race=" + raceLabelOut);
   return true;
 }
 
@@ -655,6 +642,59 @@ static String nmsTftSanitize(const String& in) {
   return out;
 }
 
+static bool sTftBootLogReady = false;
+static bool sSetupPhaseUi = true;
+
+#ifndef NMS_BOOT_STATUS_MAX_LINES
+#define NMS_BOOT_STATUS_MAX_LINES 6
+#endif
+static String sBootText[NMS_BOOT_STATUS_MAX_LINES];
+static uint16_t sBootCol[NMS_BOOT_STATUS_MAX_LINES];
+static uint8_t sBootCount = 0;
+
+static void nmsBootStatusReset(void) {
+  sBootCount = 0;
+}
+
+/** Append a boot status line and redraw all lines centered as a vertical block. */
+static void nmsStatusLogImpl(const char* level, const String& msg) {
+  if (!sTftBootLogReady || !sSetupPhaseUi) {
+    return;
+  }
+  uint16_t fg = TFT_CYAN;
+  if (strcmp(level, "WARN") == 0) {
+    fg = TFT_YELLOW;
+  }
+
+  String line = nmsTftSanitize(msg);
+  tft.setTextFont(2);
+  tft.setTextSize(1);
+  const int maxW = tft.width() - 16;
+  while (line.length() > 0 && tft.textWidth(line) > maxW) {
+    line.remove(line.length() - 1);
+  }
+  if (sBootCount < NMS_BOOT_STATUS_MAX_LINES) {
+    sBootText[sBootCount] = line;
+    sBootCol[sBootCount] = fg;
+    sBootCount++;
+  }
+
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextFont(2);
+  tft.setTextSize(1);
+  tft.setTextDatum(MC_DATUM);
+  const int cx = tft.width() / 2;
+  const int fh = tft.fontHeight(2) + 4;
+  const int n = (int)sBootCount;
+  const int totalH = n * fh;
+  int y = (tft.height() - totalH) / 2 + fh / 2;
+  for (int i = 0; i < n; i++) {
+    tft.setTextColor(sBootCol[(uint8_t)i], TFT_BLACK);
+    tft.drawString(sBootText[(uint8_t)i], cx, y + i * fh);
+  }
+  tft.setTextDatum(TL_DATUM);
+}
+
 static void drawBackdropNoBitmap(void) {
   tft.fillScreen(TFT_BLACK);
   tft.fillCircle(tft.width() / 2, tft.height() / 2, tft.width() / 2 + 4, tft.color565(4, 4, 10));
@@ -802,7 +842,6 @@ static void showWord(const String& race, const String& english, const String& al
 }
 
 static void ensureTimeSynced() {
-  logInfo(String("NTP sync via ") + NMS_NTP_SERVER_1 + " / " + NMS_NTP_SERVER_2);
   configTime(NMS_TZ_OFFSET_SECONDS, 0, NMS_NTP_SERVER_1, NMS_NTP_SERVER_2);
   time_t now = time(nullptr);
   int tries = 0;
@@ -811,24 +850,15 @@ static void ensureTimeSynced() {
     now = time(nullptr);
     tries++;
   }
-  if (now >= 1700000000) {
-    struct tm tmNow;
-    localtime_r(&now, &tmNow);
-    char buf[32];
-    snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d",
-             tmNow.tm_year + 1900, tmNow.tm_mon + 1, tmNow.tm_mday,
-             tmNow.tm_hour, tmNow.tm_min, tmNow.tm_sec);
-    logInfo(String("Time OK: ") + buf);
-  } else {
-    logWarn("Time NOT synced (will keep trying later)");
-  }
 }
 
 static void ensureWiFi() {
-  if (WiFi.status() == WL_CONNECTED) return;
+  if (WiFi.status() == WL_CONNECTED) {
+    logInfo("WiFi OK");
+    return;
+  }
 
   WiFi.mode(WIFI_STA);
-  logInfo(String("WiFi connecting to SSID '") + NMS_WIFI_SSID + "'");
   WiFi.begin(NMS_WIFI_SSID, NMS_WIFI_PASSWORD);
 
   uint32_t start = millis();
@@ -837,45 +867,37 @@ static void ensureWiFi() {
   }
 
   if (WiFi.status() == WL_CONNECTED) {
-    logInfo(String("WiFi OK, IP=") + WiFi.localIP().toString() + " RSSI=" + WiFi.RSSI());
+    logInfo("Network connection operational");
   } else {
-    logWarn(String("WiFi connect timeout, status=") + (int)WiFi.status());
+    logWarn("Network connection failed");
   }
 }
 
 void setup() {
-  Serial.begin(115200);
-  delay(500);
-  logInfo("Boot");
-  logInfo(String("Config: next word random ") + (long)NMS_WORD_RANDOM_MIN_SEC + "-" + (long)NMS_WORD_RANDOM_MAX_SEC +
-          " s, backdrop-only gap " + (long)NMS_BACKGROUND_GAP_SEC + " s before fetch");
+  sSetupPhaseUi = true;
+  sTftBootLogReady = false;
 
-  logInfo(String("Word source: GitHub ") + nmsGithubWordsBaseRaw(String(NMS_GITHUB_WORDS_BASE_URL)));
-
-  logInfo("Heap before TFT: " + String(ESP.getFreeHeap()));
-
-  logInfo(String("ESP-IDF / SDK: ") + ESP.getSdkVersion());
-#if defined(ESP_ARDUINO_VERSION_MAJOR)
-  #if defined(ESP_ARDUINO_VERSION_PATCH)
-    logInfo(String("ESP32 Arduino: ") + String(ESP_ARDUINO_VERSION_MAJOR) + "." + String(ESP_ARDUINO_VERSION_MINOR) + "." + String(ESP_ARDUINO_VERSION_PATCH));
-  #else
-    logInfo(String("ESP32 Arduino: ") + String(ESP_ARDUINO_VERSION_MAJOR) + "." + String(ESP_ARDUINO_VERSION_MINOR));
-  #endif
-#endif
-
-#ifndef USER_SETUP_LOADED
-  logWarn("USER_SETUP_LOADED missing — copy User_Setup.h for TFT_eSPI into Arduino/libraries/TFT_eSPI/");
-#endif
-
-  logInfo("TFT init start");
   tft.init();
-  logInfo("TFT init done");
-
   tft.setRotation(NMS_TFT_ROTATION);
-  tft.fillScreen(TFT_RED);
-  delay(300);
   tft.fillScreen(TFT_BLACK);
-  logInfo("Heap after TFT: " + String(ESP.getFreeHeap()));
+  nmsBootStatusReset();
+  sTftBootLogReady = true;
+
+  logInfo("Initializing...");
+  ensureWiFi();
+
+  const String baseRaw = nmsGithubWordsBaseRaw(String(NMS_GITHUB_WORDS_BASE_URL));
+  if (!nmsGithubRawBaseOk(baseRaw)) {
+    logWarn("Library connection failed");
+  } else {
+    const String indexUrl = nmsUrlJoin(baseRaw, "index.txt");
+    String indexBody;
+    if (nmsHttpsGetBody(indexUrl, indexBody) && indexBody.length() > 0) {
+      logInfo("Library connection successful");
+    } else {
+      logWarn("Library connection failed");
+    }
+  }
 
   strip.begin();
   strip.setBrightness(NMS_LED_BRIGHTNESS);
@@ -884,10 +906,9 @@ void setup() {
 
   randomSeed((uint32_t)esp_random());
 
-  logInfo("WiFi / NTP");
-  ensureWiFi();
   ensureTimeSynced();
-  logInfo("Setup complete");
+  delay(800);
+  sSetupPhaseUi = false;
 }
 
 /** Uniform random delay in seconds between min and max (inclusive). */
@@ -906,7 +927,6 @@ void loop() {
 
   time_t now = time(nullptr);
   if (now < 1700000000) {
-    logWarn("Time not valid yet; forcing NTP resync");
     ensureTimeSynced();
     now = time(nullptr);
     if (now < 1700000000) {
@@ -941,7 +961,6 @@ void loop() {
   String en, alien, raceLb;
   if (nmsFetchRandomWordFromGithub(en, alien, raceLb)) {
     showWord(raceLb, en, alien, false);
-    logInfo(String("[") + raceLb + "] " + en + " = " + alien);
 
     const uint32_t delaySec = nmsPickRandomWordDelaySec();
     uint32_t periodMs = delaySec * 1000UL;
@@ -954,11 +973,7 @@ void loop() {
     const uint32_t afterShowMs = millis();
     nextFetchAtMs = afterShowMs + periodMs;
     sBlankGapPainted = false;
-
-    logInfo(String("Next word in ") + delaySec + " s; backdrop-only for " + (blankGapMsEffective / 1000) +
-            " s before next fetch");
   } else {
-    logErr("nmsFetchRandomWordFromGithub failed");
     drawWordBackdrop();
     nmsDrawAccentBorder(sLastAccent565);
     blankGapMsEffective = 0;
