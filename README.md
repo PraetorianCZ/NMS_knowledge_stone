@@ -3,7 +3,7 @@
 
 Lolin C3 Super Mini + 1.28″ round TFT — shows a random **English / alien** word pair on a schedule.
 
-**Timing:** After each word, the next one appears after a **uniform random delay** between **`NMS_WORD_RANDOM_MIN_SEC`** and **`NMS_WORD_RANDOM_MAX_SEC`**. In the last **`NMS_BACKGROUND_GAP_SEC`** seconds before each GitHub fetch, only the **backdrop** is shown (no text); NeoPixel colour stays the **previous word’s** accent until the new word is drawn. While HTTPS is loading, the screen also shows **backdrop only** (no “…”).
+**Timing:** After each word, the next one appears after a **uniform random delay** between **`NMS_WORD_RANDOM_MIN_SEC`** and **`NMS_WORD_RANDOM_MAX_SEC`**. In the last **`NMS_BACKGROUND_GAP_SEC`** seconds before each GitHub fetch, only the **backdrop** is shown (no text); NeoPixel colour stays the **previous word’s** accent until the new word is drawn.
 
 **Word source:** GitHub **RAW** only. The sketch downloads `index.txt` from `NMS_GITHUB_WORDS_BASE_URL`, picks a random listed `.txt` file, then a random tab-separated line (`english<TAB>alien`).
 
