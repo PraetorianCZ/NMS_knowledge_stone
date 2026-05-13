@@ -7,7 +7,7 @@
 #define NMS_WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
 
 // GitHub RAW base URL for the folder that contains index.txt — no trailing slash
-#define NMS_GITHUB_WORDS_BASE_URL "https://raw.githubusercontent.com/USER/REPO/main/path/to/words"
+#define NMS_GITHUB_WORDS_BASE_URL "https://github.com/PraetorianCZ/NMS_knowledge_stone/blob/main/dictionaries"
 
 
 // New word will show in a random interval betweet min and max
