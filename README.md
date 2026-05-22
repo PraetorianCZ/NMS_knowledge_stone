@@ -1,6 +1,6 @@
-# NMS Words 2
+# NMS Words
 
-Fork of **NMS Words** for ESP32-C3 + 1.28″ round GC9A01 TFT + NeoPixel ring.
+ESP32-C3 + 1.28″ round GC9A01 TFT + NeoPixel ring.
 
 ## What is new
 
@@ -12,7 +12,7 @@ Fork of **NMS Words** for ESP32-C3 + 1.28″ round GC9A01 TFT + NeoPixel ring.
 
 Wiring: `TFT_eSPI/User_Setup.h`.
 
-Install: **TFT_eSPI**, **Adafruit NeoPixel**, **U8g2**, **U8g2_for_TFT_eSPI**. Copy `User_Setup.h` into Arduino `libraries/TFT_eSPI/`.
+ Libraries: **TFT_eSPI**, **Adafruit NeoPixel**, **U8g2**, **U8g2_for_TFT_eSPI**. Copy `User_Setup.h` into Arduino `libraries/TFT_eSPI/`.
 
 ## Sketch
 
