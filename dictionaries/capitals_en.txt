@@ -1,0 +1,261 @@
+# @name: Capitals
+# @phrase1: Capital of
+# @phrase2:
+# @quote: 0
+# @accent: #46BEE6
+# @accent_ref: #9AD4EE
+# --- Europe ---
+Albania	Tirana
+Andorra	Andorra la Vella
+Belgium	Brussels
+Bosnia and Herzegovina	Sarajevo
+Bulgaria	Sofia
+Belarus	Minsk
+Croatia	Zagreb
+Denmark	Copenhagen
+Estonia	Tallinn
+Faroe Islands	Tórshavn
+Finland	Helsinki
+France	Paris
+Gibraltar	Gibraltar
+Guernsey	St. Peter Port
+Ireland	Dublin
+Iceland	Reykjavik
+Italy	Rome
+Jersey	Saint Helier
+Kosovo	Pristina
+Liechtenstein	Vaduz
+Lithuania	Vilnius
+Latvia	Riga
+Luxembourg	Luxembourg
+Malta	Valletta
+Hungary	Budapest
+Moldova	Chișinău
+Monaco	Monaco
+Netherlands	Amsterdam
+Norway	Oslo
+Germany	Berlin
+Isle of Man	Douglas
+Poland	Warsaw
+Portugal	Lisbon
+Austria	Vienna
+Romania	Bucharest
+Russia	Moscow
+San Marino	City of San Marino
+North Macedonia	Skopje
+Slovakia	Bratislava
+Slovenia	Ljubljana
+Serbia	Belgrade
+Ukraine	Kyiv
+Vatican City	Vatican City
+United Kingdom	London
+Åland Islands	Mariehamn
+Montenegro	Podgorica
+Czechia	Prague
+Greece	Athens
+Spain	Madrid
+Svalbard and Jan Mayen	Longyearbyen
+Sweden	Stockholm
+Switzerland	Bern
+# --- Asia ---
+Afghanistan	Kabul
+Armenia	Yerevan
+Bahrain	Manama
+Bangladesh	Dhaka
+Bhutan	Thimphu
+Brunei	Bandar Seri Begawan
+Philippines	Manila
+Georgia	Tbilisi
+Hong Kong	City of Victoria
+India	New Delhi
+Indonesia	Jakarta
+Iraq	Baghdad
+Israel	Jerusalem
+Japan	Tokyo
+Yemen	Sana'a
+South Korea	Seoul
+Jordan	Amman
+Cambodia	Phnom Penh
+Qatar	Doha
+Kazakhstan	Astana
+Kuwait	Kuwait City
+Cyprus	Nicosia
+Kyrgyzstan	Bishkek
+Laos	Vientiane
+Lebanon	Beirut
+Malaysia	Kuala Lumpur
+Maldives	Malé
+Mongolia	Ulan Bator
+Myanmar	Naypyidaw
+Nepal	Kathmandu
+Oman	Muscat
+Palestine	Ramallah
+Pakistan	Islamabad
+Saudi Arabia	Riyadh
+North Korea	Pyongyang
+Singapore	Singapore
+United Arab Emirates	Abu Dhabi
+Sri Lanka	Sri Jayawardenepura Kotte
+Syria	Damascus
+Taiwan	Taipei
+Thailand	Bangkok
+Turkey	Ankara
+Turkmenistan	Ashgabat
+Tajikistan	Dushanbe
+Uzbekistan	Tashkent
+Vietnam	Hanoi
+Timor-Leste	Dili
+Azerbaijan	Baku
+Iran	Tehran
+China	Beijing
+# --- Africa ---
+Algeria	Algiers
+Angola	Luanda
+Benin	Porto-Novo
+Botswana	Gaborone
+British Indian Ocean Territory	Diego Garcia
+Burkina Faso	Ouagadougou
+Burundi	Gitega
+DR Congo	Kinshasa
+Djibouti	Djibouti
+Egypt	Cairo
+Eritrea	Asmara
+Ethiopia	Addis Ababa
+Gabon	Libreville
+Gambia	Banjul
+Ghana	Accra
+Guinea	Conakry
+Guinea-Bissau	Bissau
+South Africa	Pretoria
+South Sudan	Juba
+Cameroon	Yaoundé
+Cape Verde	Praia
+Kenya	Nairobi
+Comoros	Moroni
+Republic of the Congo	Brazzaville
+Lesotho	Maseru
+Libya	Tripoli
+Liberia	Monrovia
+Madagascar	Antananarivo
+Malawi	Lilongwe
+Mali	Bamako
+Morocco	Rabat
+Mauritius	Port Louis
+Mauritania	Nouakchott
+Mayotte	Mamoudzou
+Mozambique	Maputo
+Namibia	Windhoek
+Niger	Niamey
+Nigeria	Abuja
+Ivory Coast	Yamoussoukro
+Equatorial Guinea	Ciudad de la Paz
+Rwanda	Kigali
+Réunion	Saint-Denis
+Senegal	Dakar
+Seychelles	Victoria
+Sierra Leone	Freetown
+Somalia	Mogadishu
+Central African Republic	Bangui
+Saint Helena, Ascension and Tristan da Cunha	Jamestown
+São Tomé and Príncipe	São Tomé
+Eswatini	Mbabane
+Sudan	Khartoum
+Tanzania	Dodoma
+Togo	Lomé
+Tunisia	Tunis
+Uganda	Kampala
+Zambia	Lusaka
+Zimbabwe	Harare
+Western Sahara	El Aaiún
+Chad	N'Djamena
+# --- North America ---
+Bermuda	Hamilton
+Greenland	Nuuk
+Canada	Ottawa
+United States Minor Outlying Islands	Washington DC
+Mexico	Mexico City
+Saint Pierre and Miquelon	Saint-Pierre
+United States	Washington
+# --- Central America ---
+Belize	Belmopan
+Guatemala	Guatemala City
+Honduras	Tegucigalpa
+Costa Rica	San José
+Nicaragua	Managua
+Panama	Panama City
+El Salvador	San Salvador
+# --- Caribbean ---
+United States Virgin Islands	Charlotte Amalie
+Anguilla	The Valley
+Antigua and Barbuda	Saint John's
+Aruba	Oranjestad
+Bahamas	Nassau
+Barbados	Bridgetown
+British Virgin Islands	Road Town
+Curaçao	Willemstad
+Dominica	Roseau
+Dominican Republic	Santo Domingo
+Grenada	St. George's
+Guadeloupe	Basse-Terre
+Haiti	Port-au-Prince
+Jamaica	Kingston
+Cayman Islands	George Town
+Caribbean Netherlands	Kralendijk
+Cuba	Havana
+Martinique	Fort-de-France
+Montserrat	Plymouth
+Puerto Rico	San Juan
+Saint Lucia	Castries
+Saint Barthélemy	Gustavia
+Saint Kitts and Nevis	Basseterre
+Saint Martin	Marigot
+Sint Maarten	Philipsburg
+Saint Vincent and the Grenadines	Kingstown
+Trinidad and Tobago	Port of Spain
+Turks and Caicos Islands	Cockburn Town
+# --- South America ---
+Argentina	Buenos Aires
+Bolivia	Sucre
+Brazil	Brasília
+Chile	Santiago
+Ecuador	Quito
+Falkland Islands	Stanley
+French Guiana	Cayenne
+Guyana	Georgetown
+Colombia	Bogotá
+Paraguay	Asunción
+Peru	Lima
+Suriname	Paramaribo
+Uruguay	Montevideo
+Venezuela	Caracas
+# --- Oceania ---
+American Samoa	Pago Pago
+Australia	Canberra
+Cook Islands	Avarua
+Fiji	Suva
+French Polynesia	Papeetē
+Guam	Hagåtña
+Kiribati	South Tarawa
+Cocos (Keeling) Islands	West Island
+Marshall Islands	Majuro
+Micronesia	Palikir
+Nauru	Yaren
+Niue	Alofi
+Norfolk Island	Kingston
+New Caledonia	Nouméa
+New Zealand	Wellington
+Palau	Ngerulmud
+Papua New Guinea	Port Moresby
+Pitcairn Islands	Adamstown
+Samoa	Apia
+Northern Mariana Islands	Saipan
+Tokelau	Fakaofo
+Tonga	Nuku'alofa
+Tuvalu	Funafuti
+Vanuatu	Port Vila
+Christmas Island	Flying Fish Cove
+Wallis and Futuna	Mata-Utu
+Solomon Islands	Honiara
+# --- Antarctica ---
+French Southern and Antarctic Lands	Port-aux-Français
+South Georgia	King Edward Point

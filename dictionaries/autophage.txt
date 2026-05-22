@@ -1,3 +1,9 @@
+# @name: Autophage
+# @phrase1: You have learned the
+# @phrase2: Autophage word for
+# @quote: 0
+# @accent: #69FF91
+# @accent_ref: #98E8B0
 fly	1o0μi
 to	0uβa
 us	1ut

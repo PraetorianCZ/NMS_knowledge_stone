@@ -1,3 +1,9 @@
+# @name: Korvax
+# @phrase1: You have learned the
+# @phrase2: Korvax word for
+# @quote: 0
+# @accent: #5FDCFF
+# @accent_ref: #9CC8E0
 rare	vaiut
 warning	durenise
 korvax	itelis

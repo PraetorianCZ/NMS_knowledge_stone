@@ -1,3 +1,9 @@
+# @name: Vy'keen
+# @phrase1: You have learned the
+# @phrase2: Vy'keen word for
+# @quote: 0
+# @accent: #FF4B2D
+# @accent_ref: #E09080
 interloper	haykansrek
 visual	ormarr
 detection	zaxoisanhu

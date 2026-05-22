@@ -1,5 +1,19 @@
+# Dictionary list for firmware (one .txt per line; # lines ignored).
+
+# NMS races
 atlas.txt
 autophage.txt
 gek.txt
 korvax.txt
 vykeen.txt
+
+# Language pairs (reference TAB word to learn)
+en_cs.txt
+es_cs.txt
+es_en.txt
+
+# Topics (reference TAB answer — large word is column 2)
+capitals_cs.txt
+capitals_en.txt
+elements_cs.txt
+elements_en.txt

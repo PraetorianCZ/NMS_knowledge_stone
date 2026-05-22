@@ -1,8 +1,13 @@
-// NMS_Words — ESP32-C3 + round TFT (GC9A01). Words from GitHub RAW only.
+// NMS_Words2 — ESP32-C3 + round TFT (GC9A01). UTF-8 display + selectable dictionaries.
 #include "nms_config.h"
 
 #ifndef NMS_SHOW_CLOCK
 #define NMS_SHOW_CLOCK 1
+#endif
+
+// 1 = 24-hour clock (14:05) | 0 = 12-hour (2:05 PM)
+#ifndef NMS_CLOCK_24H
+#define NMS_CLOCK_24H 1
 #endif
 
 // Optional nms_bg565.h background: if colours look wrong after pushImage(), toggle NMS_BG565_PUSH_SWAP_BYTES in nms_config.h
@@ -15,9 +20,14 @@
 #define NMS_TFT_ROTATION 0
 #endif
 
-// Accent-coloured circular ring at panel edge (same RGB565 as alien word / NeoPixel). 0 = off.
+// Accent ring at panel edge (same RGB565 as main word / NeoPixel). 0 = off.
 #ifndef NMS_ACCENT_BORDER_PX
 #define NMS_ACCENT_BORDER_PX 6
+#endif
+
+// Display: 0 = main word only | 1 = main word + phrases + reference (default) | 2 = main word + reference only
+#ifndef NMS_WORD_DISPLAY_MODE
+#define NMS_WORD_DISPLAY_MODE 1
 #endif
 
 #include <WiFi.h>
@@ -29,7 +39,10 @@
 #include <time.h>
 #include <Adafruit_NeoPixel.h>
 #include <TFT_eSPI.h>
-#include "nms_tft_latin_fold.h"
+#include <U8g2_for_TFT_eSPI.h>
+#include "nms_tft_utf8.h"
+#include "nms_dictionaries.h"
+#include "nms_dict_meta.h"
 
 #if __has_include("nms_bg565.h")
 #include "nms_bg565.h"
@@ -220,11 +233,27 @@ static String nmsUrlJoin(const String& base, const String& rel) {
   return b + "/" + r;
 }
 
-static bool nmsGithubLineOk(const String& line) {
+static String nmsGithubIndexLineClean(const String& line) {
   String t = line;
   t.trim();
-  if (t.length() == 0) return false;
-  if (t.charAt(0) == '#') return false;
+  if (t.length() == 0 || t.charAt(0) == '#') {
+    return t;
+  }
+  int cut = t.indexOf(" //");
+  if (cut > 0) {
+    t = t.substring(0, cut);
+  }
+  cut = t.indexOf(" #");
+  if (cut > 0) {
+    t = t.substring(0, cut);
+  }
+  t.trim();
+  return t;
+}
+
+static bool nmsGithubLineOk(const String& line) {
+  String t = nmsGithubIndexLineClean(line);
+  if (t.length() == 0 || t.charAt(0) == '#') return false;
   if (t.indexOf("..") >= 0) return false;
   if (t.indexOf('<') >= 0 || t.indexOf('>') >= 0) {
     return false;
@@ -250,7 +279,7 @@ static bool nmsPickRandomIndexPath(const String& indexBody, String& pathOut) {
     int nl = indexBody.indexOf('\n', start);
     if (nl < 0) nl = indexBody.length();
     const String line = indexBody.substring(start, nl);
-    if (nmsGithubLineOk(line)) {
+    if (nmsGithubLineOk(line) && nmsDictionaryPathAllowed(nmsGithubIndexLineClean(line))) {
       n++;
     }
     start = nl + 1;
@@ -263,10 +292,9 @@ static bool nmsPickRandomIndexPath(const String& indexBody, String& pathOut) {
     int nl = indexBody.indexOf('\n', start);
     if (nl < 0) nl = indexBody.length();
     const String line = indexBody.substring(start, nl);
-    if (nmsGithubLineOk(line)) {
+    if (nmsGithubLineOk(line) && nmsDictionaryPathAllowed(nmsGithubIndexLineClean(line))) {
       if (i == pick) {
-        pathOut = line;
-        pathOut.trim();
+        pathOut = nmsGithubIndexLineClean(line);
         return true;
       }
       i++;
@@ -276,19 +304,31 @@ static bool nmsPickRandomIndexPath(const String& indexBody, String& pathOut) {
   return false;
 }
 
+static bool nmsDictParseTabLine(const String& rawLine, String& col1, String& col2) {
+  String line = nmsDictPrepareDataLine(rawLine);
+  if (line.length() == 0 || line.charAt(0) == '#') {
+    return false;
+  }
+  const int tab = line.indexOf('\t');
+  if (tab <= 0 || tab >= (int)line.length() - 1) {
+    return false;
+  }
+  col1 = line.substring(0, tab);
+  col2 = line.substring(tab + 1);
+  col1.trim();
+  col2.trim();
+  return col1.length() > 0 && col2.length() > 0;
+}
+
 static bool nmsPickRandomTabLine(const String& fileBody, String& col1, String& col2) {
   int n = 0;
   int start = 0;
   while (start < (int)fileBody.length()) {
     int nl = fileBody.indexOf('\n', start);
     if (nl < 0) nl = fileBody.length();
-    String line = fileBody.substring(start, nl);
-    line.trim();
-    if (line.length() > 0 && line.charAt(0) != '#') {
-      const int tab = line.indexOf('\t');
-      if (tab > 0 && tab < (int)line.length() - 1) {
-        n++;
-      }
+    String c1, c2;
+    if (nmsDictParseTabLine(fileBody.substring(start, nl), c1, c2)) {
+      n++;
     }
     start = nl + 1;
   }
@@ -299,348 +339,64 @@ static bool nmsPickRandomTabLine(const String& fileBody, String& col1, String& c
   while (start < (int)fileBody.length()) {
     int nl = fileBody.indexOf('\n', start);
     if (nl < 0) nl = fileBody.length();
-    String line = fileBody.substring(start, nl);
-    line.trim();
-    if (line.length() > 0 && line.charAt(0) != '#') {
-      const int tab = line.indexOf('\t');
-      if (tab > 0 && tab < (int)line.length() - 1) {
-        if (i == pick) {
-          col1 = line.substring(0, tab);
-          col2 = line.substring(tab + 1);
-          col1.trim();
-          col2.trim();
-          return true;
-        }
-        i++;
+    if (nmsDictParseTabLine(fileBody.substring(start, nl), col1, col2)) {
+      if (i == pick) {
+        return true;
       }
+      i++;
     }
     start = nl + 1;
   }
   return false;
 }
 
-/** Race label for colours from path (e.g. cs/gek.txt → Gek). */
-static String nmsRaceLabelFromWordPath(const String& relPath) {
-  String base = relPath;
-  const int sl = base.lastIndexOf('/');
-  if (sl >= 0) {
-    base = base.substring(sl + 1);
-  }
-  if (base.endsWith(".txt")) {
-    base.remove(base.length() - 4, 4);
-  }
-  base.trim();
-  base.toLowerCase();
-  if (base == "gek") return "Gek";
-  if (base == "korvax") return "Korvax";
-  if (base == "vykeen") return "Vy'keen";
-  if (base == "atlas") return "Atlas";
-  if (base == "autophage") return "Autophage";
-  if (base.length() == 0) return "Gek";
-  base.setCharAt(0, (char)toupper((unsigned char)base.charAt(0)));
-  return base;
-}
-
-static bool nmsFetchRandomWordFromGithub(String& englishOut, String& alienOut, String& raceLabelOut) {
+static bool nmsFetchRandomWordFromGithub(String& englishOut, String& alienOut) {
   englishOut = "";
   alienOut = "";
-  raceLabelOut = "Gek";
 
   const String baseRaw = nmsGithubWordsBaseRaw(String(NMS_GITHUB_WORDS_BASE_URL));
   if (!nmsGithubRawBaseOk(baseRaw)) {
     return false;
   }
 
-  const String indexUrl = nmsUrlJoin(baseRaw, "index.txt");
-  String indexBody;
-  if (!nmsHttpsGetBody(indexUrl, indexBody)) {
-    return false;
-  }
   String relPath;
-  if (!nmsPickRandomIndexPath(indexBody, relPath)) {
-    return false;
+  if (nmsDictionariesUseAllowlist()) {
+    if (!nmsPickRandomAllowedDictionary(relPath)) {
+      return false;
+    }
+  } else {
+    const String indexUrl = nmsUrlJoin(baseRaw, "index.txt");
+    String indexBody;
+    if (!nmsHttpsGetBody(indexUrl, indexBody)) {
+      return false;
+    }
+    if (!nmsPickRandomIndexPath(indexBody, relPath)) {
+      return false;
+    }
   }
   const String fileUrl = nmsUrlJoin(baseRaw, relPath);
   String fileBody;
   if (!nmsHttpsGetBody(fileUrl, fileBody)) {
     return false;
   }
-  if (!nmsPickRandomTabLine(fileBody, englishOut, alienOut)) {
-    return false;
-  }
-  raceLabelOut = nmsRaceLabelFromWordPath(relPath);
-  return true;
+  nmsDictMetaParseFromFileBody(fileBody);
+  return nmsPickRandomTabLine(fileBody, englishOut, alienOut);
 }
 
 // ----- Display -----
 TFT_eSPI tft = TFT_eSPI();
+U8g2_for_TFT_eSPI u8g2 = U8g2_for_TFT_eSPI();
 
-// textSize: alien word (with wrapping) vs English sentence lines vs optional clock
-static const uint8_t NMS_UI_TEXT_SIZE = 2;
-static const uint8_t NMS_SENTENCE_TEXT_SIZE = 1;
-#if NMS_SHOW_CLOCK
-static const uint8_t NMS_CLOCK_TEXT_SIZE = 1;
+// Vertical layout for showWord() (U8g2 baselines)
+#ifndef NMS_MAIN_WORD_Y_OFFSET
+#define NMS_MAIN_WORD_Y_OFFSET 20
 #endif
 
-// Vertical layout for showWord() (pixels)
-static const int NMS_ALIEN_TOP_Y = 80;
-static const int NMS_GAP_SINGLELINE_ALIEN_TO_SENTENCE = 12;
-static const int NMS_GAP_WRAPPED_ALIEN_TO_SENTENCE = 10;
-static const int NMS_SENTENCE_LINE_EXTRA = 5;
+// Layout (top → bottom): optional @name | main word (col 2) | phrase lines | reference (col 1) | optional clock
 
-/** Wrapped lines, each centred horizontally (topY = top of first line). */
-static int drawCenteredWrapped(const String& text, int topY, int maxWidth, int font, uint16_t color, uint8_t textSize) {
-  const uint8_t prevDatum = tft.getTextDatum();
-  tft.setTextDatum(TL_DATUM);
-  tft.setTextSize(textSize);
-  tft.setTextFont(font);
-  tft.setTextColor(color);
-
-  const int cx = tft.width() / 2;
-  const int lineHeight = tft.fontHeight(font) + 4;
-  int yPos = topY;
-  String line;
-
-  auto flushLine = [&](const String& l) {
-    if (l.length() == 0) return;
-    const int w = tft.textWidth(l);
-    tft.drawString(l, cx - w / 2, yPos);
-    yPos += lineHeight;
-  };
-
-  int start = 0;
-  while (start < (int)text.length()) {
-    int space = text.indexOf(' ', start);
-    if (space < 0) space = text.length();
-    String word = text.substring(start, space);
-    String trial = (line.length() == 0) ? word : (line + " " + word);
-
-    const int w = tft.textWidth(trial);
-    if (w <= maxWidth) {
-      line = trial;
-    } else {
-      flushLine(line);
-      line = word;
-    }
-    start = space + 1;
-  }
-  flushLine(line);
-  tft.setTextDatum(prevDatum);
-  return yPos;
-}
-
-// Soft glow: cx = screen centre; cy = vertical centre of text block (TL datum + offset).
-static void drawGlowStringAt(int cx, int cy, int font, const String& s, uint16_t fg, uint16_t glowCol, int radius, uint8_t textSize) {
-  const uint8_t prevDatum = tft.getTextDatum();
-  tft.setTextDatum(TL_DATUM);
-  tft.setTextSize(textSize);
-  tft.setTextFont(font);
-  const int w = tft.textWidth(s);
-  const int h = tft.fontHeight(font);
-  const int left = cx - w / 2;
-  const int top = cy - h / 2;
-  if (radius > 0) {
-    for (int dy = -radius; dy <= radius; dy++) {
-      for (int dx = -radius; dx <= radius; dx++) {
-        if (dx == 0 && dy == 0) continue;
-        tft.setTextColor(glowCol);
-        tft.drawString(s, left + dx, top + dy);
-      }
-    }
-  }
-  tft.setTextColor(fg);
-  tft.drawString(s, left, top);
-  tft.setTextDatum(prevDatum);
-}
-
-// Built-in GLCD fonts lack accented glyphs — UTF-8 Latin is folded to ASCII (nms_tft_latin_fold.h); Greek is transliterated.
-static size_t utf8DecodeCp(const String& in, size_t i, uint32_t& cp) {
-  const size_t n = in.length();
-  if (i >= n) {
-    cp = 0;
-    return 0;
-  }
-  const uint8_t c0 = (uint8_t)in[i];
-  if (c0 < 0x80u) {
-    cp = c0;
-    return 1;
-  }
-  if ((c0 & 0xE0u) == 0xC0u) {
-    if (i + 1 >= n || (((uint8_t)in[i + 1]) & 0xC0u) != 0x80u) {
-      cp = 0xFFFD;
-      return 1;
-    }
-    cp = ((uint32_t)(c0 & 0x1Fu) << 6) | ((uint8_t)in[i + 1] & 0x3Fu);
-    if (cp < 0x80u) {
-      cp = 0xFFFD;
-      return 1;
-    }
-    return 2;
-  }
-  if ((c0 & 0xF0u) == 0xE0u) {
-    if (i + 2 >= n || (((uint8_t)in[i + 1]) & 0xC0u) != 0x80u || (((uint8_t)in[i + 2]) & 0xC0u) != 0x80u) {
-      cp = 0xFFFD;
-      return 1;
-    }
-    cp = ((uint32_t)(c0 & 0x0Fu) << 12) | (((uint32_t)(uint8_t)in[i + 1] & 0x3Fu) << 6) | ((uint8_t)in[i + 2] & 0x3Fu);
-    if (cp < 0x800u) {
-      cp = 0xFFFD;
-      return 1;
-    }
-    return 3;
-  }
-  if ((c0 & 0xF8u) == 0xF0u) {
-    if (i + 3 >= n || (((uint8_t)in[i + 1]) & 0xC0u) != 0x80u || (((uint8_t)in[i + 2]) & 0xC0u) != 0x80u || (((uint8_t)in[i + 3]) & 0xC0u) != 0x80u) {
-      cp = 0xFFFD;
-      return 1;
-    }
-    cp = ((uint32_t)(c0 & 0x07u) << 18) | (((uint32_t)(uint8_t)in[i + 1] & 0x3Fu) << 12) | (((uint32_t)(uint8_t)in[i + 2] & 0x3Fu) << 6) | ((uint8_t)in[i + 3] & 0x3Fu);
-    if (cp < 0x10000u) {
-      cp = 0xFFFD;
-      return 1;
-    }
-    return 4;
-  }
-  cp = 0xFFFD;
-  return 1;
-}
-
-static void nmsAppendGreekLatin(String& out, uint32_t cp) {
-  switch (cp) {
-    case 0x0391:
-    case 0x03B1:
-      out += 'a';
-      break;
-    case 0x0392:
-    case 0x03B2:
-      out += 'b';
-      break;
-    case 0x0393:
-    case 0x03B3:
-      out += 'g';
-      break;
-    case 0x0394:
-    case 0x03B4:
-      out += 'd';
-      break;
-    case 0x0395:
-    case 0x03B5:
-      out += 'e';
-      break;
-    case 0x0396:
-    case 0x03B6:
-      out += 'z';
-      break;
-    case 0x0397:
-    case 0x03B7:
-      out += 'h';
-      break;
-    case 0x0398:
-    case 0x03B8:
-      out += "th";
-      break;
-    case 0x0399:
-    case 0x03B9:
-      out += 'i';
-      break;
-    case 0x039A:
-    case 0x03BA:
-      out += 'k';
-      break;
-    case 0x039B:
-    case 0x03BB:
-      out += 'l';
-      break;
-    case 0x039C:
-    case 0x03BC:
-      out += 'm';
-      break;
-    case 0x039D:
-    case 0x03BD:
-      out += 'n';
-      break;
-    case 0x039E:
-    case 0x03BE:
-      out += 'x';
-      break;
-    case 0x039F:
-    case 0x03BF:
-      out += 'o';
-      break;
-    case 0x03A0:
-    case 0x03C0:
-      out += 'p';
-      break;
-    case 0x03A1:
-    case 0x03C1:
-      out += 'r';
-      break;
-    case 0x03A3:
-    case 0x03C3:
-    case 0x03C2:
-      out += 's';
-      break;
-    case 0x03A4:
-    case 0x03C4:
-      out += 't';
-      break;
-    case 0x03A5:
-    case 0x03C5:
-      out += 'y';
-      break;
-    case 0x03A6:
-    case 0x03C6:
-      out += 'f';
-      break;
-    case 0x03A7:
-    case 0x03C7:
-      out += "ch";
-      break;
-    case 0x03A8:
-    case 0x03C8:
-      out += "ps";
-      break;
-    case 0x03A9:
-    case 0x03C9:
-      out += 'w';
-      break;
-    default:
-      out += '?';
-      break;
-  }
-}
-
-static String nmsTftSanitize(const String& in) {
-  String out;
-  if (in.length() == 0) {
-    return out;
-  }
-  out.reserve(in.length());
-  for (size_t i = 0; i < in.length();) {
-    uint32_t cp = 0;
-    const size_t adv = utf8DecodeCp(in, i, cp);
-    if (adv == 0) {
-      break;
-    }
-    if (cp >= 0x0300u && cp <= 0x036Fu) {
-      i += adv;
-      continue;
-    }
-    if (cp < 0x80u) {
-      out += (char)cp;
-      i += adv;
-      continue;
-    }
-    if (cp >= 0x0370u && cp <= 0x03FFu) {
-      nmsAppendGreekLatin(out, cp);
-    } else if (nmsTryAppendLatinFolded(out, cp)) {
-    } else {
-      out += '?';
-    }
-    i += adv;
-  }
-  return out;
-}
+static const int NMS_ALIEN_TOP_BASELINE = 72 + NMS_MAIN_WORD_Y_OFFSET;
+static const int NMS_GAP_ALIEN_TO_SENTENCE = 10;
+static const int NMS_SENTENCE_LINE_EXTRA = 4;
 
 static bool sTftBootLogReady = false;
 static bool sSetupPhaseUi = true;
@@ -666,12 +422,11 @@ static void nmsStatusLogImpl(const char* level, const String& msg) {
     fg = TFT_YELLOW;
   }
 
-  String line = nmsTftSanitize(msg);
-  tft.setTextFont(2);
-  tft.setTextSize(1);
+  String line = msg;
+  nmsTftSetBodyFont();
   const int maxW = tft.width() - 16;
-  while (line.length() > 0 && tft.textWidth(line) > maxW) {
-    line.remove(line.length() - 1);
+  while (line.length() > 0 && nmsTftTextWidth(line) > maxW) {
+    nmsUtf8PopLastCodepoint(line);
   }
   if (sBootCount < NMS_BOOT_STATUS_MAX_LINES) {
     sBootText[sBootCount] = line;
@@ -680,19 +435,16 @@ static void nmsStatusLogImpl(const char* level, const String& msg) {
   }
 
   tft.fillScreen(TFT_BLACK);
-  tft.setTextFont(2);
-  tft.setTextSize(1);
-  tft.setTextDatum(MC_DATUM);
+  nmsTftSetBodyFont();
   const int cx = tft.width() / 2;
-  const int fh = tft.fontHeight(2) + 4;
+  const int lh = nmsTftLineHeight();
   const int n = (int)sBootCount;
-  const int totalH = n * fh;
-  int y = (tft.height() - totalH) / 2 + fh / 2;
+  const int totalH = n * lh;
+  const int blockTop = (tft.height() - totalH) / 2;
   for (int i = 0; i < n; i++) {
-    tft.setTextColor(sBootCol[(uint8_t)i], TFT_BLACK);
-    tft.drawString(sBootText[(uint8_t)i], cx, y + i * fh);
+    const int lineCy = blockTop + i * lh + lh / 2;
+    nmsTftDrawUtf8Centered(cx, nmsTftBaselineForCenterY(lineCy), sBootText[(uint8_t)i], sBootCol[(uint8_t)i]);
   }
-  tft.setTextDatum(TL_DATUM);
 }
 
 static void drawBackdropNoBitmap(void) {
@@ -759,82 +511,112 @@ static void nmsDrawAccentBorder(uint16_t color565) {
 #endif
 }
 
-/** Alien word only; returns vertical centre Y of first English sentence line (font 2). */
-static int drawWordAlienOnly(int cx, int alienTopY, int maxW, const String& alienDraw, uint16_t accent, uint16_t alienGlow) {
-  tft.setTextSize(NMS_UI_TEXT_SIZE);
-  tft.setTextFont(4);
-  if (tft.textWidth(alienDraw) <= maxW) {
-    const int aFont = 4;
-    const int hA = tft.fontHeight(aFont);
-    const int cya = alienTopY + hA / 2;
-    drawGlowStringAt(cx, cya, aFont, alienDraw, accent, alienGlow, 2, NMS_UI_TEXT_SIZE);
-    tft.setTextSize(NMS_SENTENCE_TEXT_SIZE);
-    tft.setTextFont(2);
-    return alienTopY + hA + NMS_GAP_SINGLELINE_ALIEN_TO_SENTENCE + tft.fontHeight(2) / 2;
+/** Alien word only; returns baseline Y for the first English sentence line. */
+static int drawWordAlienOnly(int cx, int alienTopBaseline, int maxW, const String& alienDraw, uint16_t accent, uint16_t alienGlow) {
+  const int lh = nmsTftMainWordLineHeight(alienDraw);
+  if (nmsTftTextWidth(alienDraw, true) <= maxW) {
+    nmsTftDrawGlowCentered(cx, alienTopBaseline, alienDraw, accent, alienGlow, 2, true);
+    nmsTftSetBodyFont();
+    return alienTopBaseline + lh + NMS_GAP_ALIEN_TO_SENTENCE;
   }
-  const int belowAlienTop = drawCenteredWrapped(alienDraw, alienTopY, maxW, 2, accent, NMS_UI_TEXT_SIZE);
-  tft.setTextSize(NMS_SENTENCE_TEXT_SIZE);
-  tft.setTextFont(2);
-  return belowAlienTop + NMS_GAP_WRAPPED_ALIEN_TO_SENTENCE + tft.fontHeight(2) / 2;
+  const int belowBaseline = nmsTftDrawWrappedCentered(alienDraw, alienTopBaseline, maxW, accent, true);
+  nmsTftSetBodyFont();
+  return belowBaseline + NMS_GAP_ALIEN_TO_SENTENCE;
 }
 
-static uint16_t accentForRace(const String& race) {
-  if (race == "Gek") return tft.color565(255, 205, 65);
-  if (race == "Korvax") return tft.color565(95, 220, 255);
-  if (race == "Vy'keen") return tft.color565(255, 75, 45);
-  if (race == "Atlas") return tft.color565(235, 65, 130);
-  if (race == "Autophage") return tft.color565(105, 255, 145);
-  return TFT_WHITE;
+/** Alien word only, vertically centered on the round panel. */
+static void drawAlienOnlyCentered(int cx, int maxW, const String& alienDraw, uint16_t accent, uint16_t alienGlow) {
+  const int lh = nmsTftMainWordLineHeight(alienDraw);
+  if (nmsTftTextWidth(alienDraw, true) <= maxW) {
+    const int cy = tft.height() / 2 + NMS_MAIN_WORD_Y_OFFSET;
+    nmsTftDrawGlowCentered(cx, nmsTftBaselineForCenterY(cy), alienDraw, accent, alienGlow, 2, true);
+    return;
+  }
+  const int nLines = nmsTftCountWrappedLines(alienDraw, maxW, true);
+  const int totalH = nLines * lh;
+  const int blockTop = (tft.height() - totalH) / 2 + NMS_MAIN_WORD_Y_OFFSET;
+  nmsTftDrawWrappedCentered(alienDraw, blockTop, maxW, accent, true);
 }
 
-static void showWord(const String& race, const String& english, const String& alien, bool drawBackdropFirst = true) {
+static void nmsFormatClockString(const struct tm& tmNow, char* buf, size_t bufLen) {
+  if (bufLen == 0) {
+    return;
+  }
+#if NMS_CLOCK_24H
+  snprintf(buf, bufLen, "%02d:%02d", tmNow.tm_hour, tmNow.tm_min);
+#else
+  int h = tmNow.tm_hour % 12;
+  if (h == 0) {
+    h = 12;
+  }
+  const char* suffix = (tmNow.tm_hour < 12) ? "AM" : "PM";
+  snprintf(buf, bufLen, "%d:%02d %s", h, tmNow.tm_min, suffix);
+#endif
+}
+
+// col1 = reference (english param), col2 = large main word (alien param)
+static void showWord(const String& english, const String& alien, bool drawBackdropFirst = true) {
   const int cx = tft.width() / 2;
   const int margin = 14;
   const int maxW = tft.width() - 2 * margin;
-  const uint16_t accent = accentForRace(race);
+  const uint16_t accent = nmsDictMetaAccent();
+  const uint16_t accentRef = nmsDictMetaAccentRef();
   const uint16_t alienGlow = tft.color565(28, 30, 42);
+  const uint16_t refGlow = tft.color565(40, 42, 58);
   const uint16_t sentenceGlow = tft.color565(70, 70, 85);
 
   nmsNeoPixelSetAccent(accent);
 
-  String alienDraw(nmsTftSanitize(alien));
+  String alienDraw = alien;
   alienDraw.trim();
-
-  const int alienTopY = NMS_ALIEN_TOP_Y;
-  const String lineA = "You have learned the";
-  const String lineB = nmsTftSanitize(race) + String(" word for");
-  const String quoted = String("'") + nmsTftSanitize(english) + "'";
+  String englishDraw = english;
+  englishDraw.trim();
 
   if (drawBackdropFirst) {
     drawWordBackdrop();
   }
-  const int yA = drawWordAlienOnly(cx, alienTopY, maxW, alienDraw, accent, alienGlow);
 
-  tft.setTextSize(NMS_SENTENCE_TEXT_SIZE);
-  tft.setTextFont(2);
-  const int fhSentence = tft.fontHeight(2);
-  const int yB = yA + fhSentence + NMS_SENTENCE_LINE_EXTRA;
-  const int yC = yB + fhSentence + NMS_SENTENCE_LINE_EXTRA;
+  const bool phraseLarge = nmsTftPhraseUsesTitleFont();
+  const int lhPhrase = nmsTftLineHeightFor(phraseLarge);
+  const uint8_t dispMode = nmsDictMetaDisplayMode();
+  const bool quoteRef = nmsDictMetaQuoteRef();
+  String refLine = englishDraw;
+  if (quoteRef) {
+    refLine = String("'") + englishDraw + "'";
+  }
 
-  drawGlowStringAt(cx, yA, 2, lineA, TFT_WHITE, sentenceGlow, 1, NMS_SENTENCE_TEXT_SIZE);
-  drawGlowStringAt(cx, yB, 2, lineB, TFT_WHITE, sentenceGlow, 1, NMS_SENTENCE_TEXT_SIZE);
-  drawGlowStringAt(cx, yC, 2, quoted, TFT_WHITE, sentenceGlow, 1, NMS_SENTENCE_TEXT_SIZE);
+  if (dispMode == 0) {
+    drawAlienOnlyCentered(cx, maxW, alienDraw, accent, alienGlow);
+  } else if (dispMode == 2) {
+    const int ySub = drawWordAlienOnly(cx, NMS_ALIEN_TOP_BASELINE, maxW, alienDraw, accent, alienGlow);
+    nmsTftDrawGlowCentered(cx, ySub, refLine, accentRef, refGlow, 1, phraseLarge);
+  } else {
+    const String lineA = sNmsDictMeta.phrase1;
+    const String lineB = sNmsDictMeta.phrase2;
+    const int yAfterMain = drawWordAlienOnly(cx, NMS_ALIEN_TOP_BASELINE, maxW, alienDraw, accent, alienGlow);
+    int yNext = yAfterMain;
+    if (lineA.length() > 0) {
+      nmsTftDrawGlowCentered(cx, yNext, lineA, TFT_WHITE, sentenceGlow, 1, phraseLarge);
+      yNext += lhPhrase + NMS_SENTENCE_LINE_EXTRA;
+    }
+    if (lineB.length() > 0) {
+      nmsTftDrawGlowCentered(cx, yNext, lineB, TFT_WHITE, sentenceGlow, 1, phraseLarge);
+      yNext += lhPhrase + NMS_SENTENCE_LINE_EXTRA;
+    }
+    if (englishDraw.length() > 0) {
+      nmsTftDrawGlowCentered(cx, yNext, refLine, accentRef, refGlow, 1, phraseLarge);
+    }
+  }
+
+  nmsDictDrawNameHeader(cx);
 
 #if NMS_SHOW_CLOCK
   time_t now = time(nullptr);
   struct tm tmNow;
   localtime_r(&now, &tmNow);
-  char buf[32];
-  snprintf(buf, sizeof(buf), "%02d:%02d", tmNow.tm_hour, tmNow.tm_min);
-  tft.setTextDatum(MC_DATUM);
-  tft.setTextSize(NMS_CLOCK_TEXT_SIZE);
-  tft.setTextFont(2);
-#if defined(NMS_HAS_BG565)
-  tft.setTextColor(TFT_DARKGREY);
-#else
-  tft.setTextColor(TFT_DARKGREY, TFT_BLACK);
-#endif
-  tft.drawString(String(buf), cx, tft.height() - 16);
+  char buf[16];
+  nmsFormatClockString(tmNow, buf, sizeof(buf));
+  nmsTftDrawUtf8Centered(cx, tft.height() - 12, String(buf), TFT_DARKGREY);
 #endif
 
   sLastAccent565 = accent;
@@ -854,7 +636,7 @@ static void ensureTimeSynced() {
 
 static void ensureWiFi() {
   if (WiFi.status() == WL_CONNECTED) {
-    logInfo("WiFi OK");
+    logInfo("Network operational");
     return;
   }
 
@@ -867,36 +649,48 @@ static void ensureWiFi() {
   }
 
   if (WiFi.status() == WL_CONNECTED) {
-    logInfo("Network connection operational");
+    logInfo("Network operational");
   } else {
-    logWarn("Network connection failed");
+    logWarn("Network failed");
   }
 }
 
-
 void setup() {
+  nmsDictionariesInit();
+
   sSetupPhaseUi = true;
   sTftBootLogReady = false;
 
   tft.init();
   tft.setRotation(NMS_TFT_ROTATION);
   tft.fillScreen(TFT_BLACK);
+  nmsTftTextBegin();
   nmsBootStatusReset();
   sTftBootLogReady = true;
 
-  logInfo("Initializing...");
+  logInfo("initializing...");
   ensureWiFi();
 
   const String baseRaw = nmsGithubWordsBaseRaw(String(NMS_GITHUB_WORDS_BASE_URL));
   if (!nmsGithubRawBaseOk(baseRaw)) {
     logWarn("Library connection failed");
   } else {
-    const String indexUrl = nmsUrlJoin(baseRaw, "index.txt");
-    String indexBody;
-    if (nmsHttpsGetBody(indexUrl, indexBody) && indexBody.length() > 0) {
-      logInfo("Library connection successful");
+    bool githubOk = false;
+    if (nmsDictionariesUseAllowlist()) {
+      String relPath;
+      if (nmsPickRandomAllowedDictionary(relPath)) {
+        String body;
+        githubOk = nmsHttpsGetBody(nmsUrlJoin(baseRaw, relPath), body) && body.length() > 0;
+      }
     } else {
-      logWarn("Library connection failed");
+      const String indexUrl = nmsUrlJoin(baseRaw, "index.txt");
+      String indexBody;
+      githubOk = nmsHttpsGetBody(indexUrl, indexBody) && indexBody.length() > 0;
+    }
+    if (githubOk) {
+      logInfo("Library link successful");
+    } else {
+      logWarn("Library link failed");
     }
   }
 
@@ -959,9 +753,9 @@ void loop() {
     nmsDrawAccentBorder(sLastAccent565);
   }
 
-  String en, alien, raceLb;
-  if (nmsFetchRandomWordFromGithub(en, alien, raceLb)) {
-    showWord(raceLb, en, alien, false);
+  String en, alien;
+  if (nmsFetchRandomWordFromGithub(en, alien)) {
+    showWord(en, alien, false);
 
     const uint32_t delaySec = nmsPickRandomWordDelaySec();
     uint32_t periodMs = delaySec * 1000UL;

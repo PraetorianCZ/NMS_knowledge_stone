@@ -1,0 +1,130 @@
+# @name: Elements
+# @phrase1: symbol for
+# @phrase2: chemical element
+# @quote: 0
+# @accent: #5CE08A
+# --- Period 1 ---
+Hydrogen	H
+Helium	He
+# --- Period 2 ---
+Lithium	Li
+Beryllium	Be
+Boron	B
+Carbon	C
+Nitrogen	N
+Oxygen	O
+Fluorine	F
+Neon	Ne
+# --- Period 3 ---
+Sodium	Na
+Magnesium	Mg
+Aluminium	Al
+Silicon	Si
+Phosphorus	P
+Sulfur	S
+Chlorine	Cl
+Argon	Ar
+# --- Period 4 ---
+Potassium	K
+Calcium	Ca
+Scandium	Sc
+Titanium	Ti
+Vanadium	V
+Chromium	Cr
+Manganese	Mn
+Iron	Fe
+Cobalt	Co
+Nickel	Ni
+Copper	Cu
+Zinc	Zn
+Gallium	Ga
+Germanium	Ge
+Arsenic	As
+Selenium	Se
+Bromine	Br
+Krypton	Kr
+# --- Period 5 ---
+Rubidium	Rb
+Strontium	Sr
+Yttrium	Y
+Zirconium	Zr
+Niobium	Nb
+Molybdenum	Mo
+Technetium	Tc
+Ruthenium	Ru
+Rhodium	Rh
+Palladium	Pd
+Silver	Ag
+Cadmium	Cd
+Indium	In
+Tin	Sn
+Antimony	Sb
+Tellurium	Te
+Iodine	I
+Xenon	Xe
+# --- Period 6 ---
+Caesium	Cs
+Barium	Ba
+Lanthanum	La
+Cerium	Ce
+Praseodymium	Pr
+Neodymium	Nd
+Promethium	Pm
+Samarium	Sm
+Europium	Eu
+Gadolinium	Gd
+Terbium	Tb
+Dysprosium	Dy
+Holmium	Ho
+Erbium	Er
+Thulium	Tm
+Ytterbium	Yb
+Lutetium	Lu
+Hafnium	Hf
+Tantalum	Ta
+Tungsten	W
+Rhenium	Re
+Osmium	Os
+Iridium	Ir
+Platinum	Pt
+Gold	Au
+Mercury	Hg
+Thallium	Tl
+Lead	Pb
+Bismuth	Bi
+Polonium	Po
+Astatine	At
+Radon	Rn
+# --- Period 7 ---
+Francium	Fr
+Radium	Ra
+Actinium	Ac
+Thorium	Th
+Protactinium	Pa
+Uranium	U
+Neptunium	Np
+Plutonium	Pu
+Americium	Am
+Curium	Cm
+Berkelium	Bk
+Californium	Cf
+Einsteinium	Es
+Fermium	Fm
+Mendelevium	Md
+Nobelium	No
+Lawrencium	Lr
+Rutherfordium	Rf
+Dubnium	Db
+Seaborgium	Sg
+Bohrium	Bh
+Hassium	Hs
+Meitnerium	Mt
+Darmstadtium	Ds
+Roentgenium	Rg
+Copernicium	Cn
+Nihonium	Nh
+Flerovium	Fl
+Moscovium	Mc
+Livermorium	Lv
+Tennessine	Ts
+Oganesson	Og

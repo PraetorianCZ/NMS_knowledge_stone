@@ -1,3 +1,9 @@
+# @name: Atlas
+# @phrase1: You have learned the
+# @phrase2: Atlas word for
+# @quote: 0
+# @accent: #EB4182
+# @accent_ref: #D888A8
 awake	geos
 witness	ciputin
 creation	pasycahei

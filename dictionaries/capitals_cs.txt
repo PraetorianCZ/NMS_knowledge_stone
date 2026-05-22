@@ -1,0 +1,261 @@
+# @name: Hlavní města
+# @phrase1: Hlavní město země
+# @phrase2:
+# @quote: 0
+# @accent: #46BEE6
+# @accent_ref: #9AD4EE
+# --- Evropa ---
+Albánie	Tirana
+Andorra	Andorra la Vella
+Belgie	Brusel
+Bosna a Hercegovina	Sarajevo
+Bulharsko	Sofie
+Bělorusko	Minsk
+Chorvatsko	Záhřeb
+Dánsko	Kodaň
+Estonsko	Tallinn
+Faerské ostrovy	Tórshavn
+Finsko	Helsinki
+Francie	Paříž
+Gibraltar	Gibraltar
+Guernsey	St. Peter Port
+Irsko	Dublin
+Island	Reykjavík
+Itálie	Řím
+Jersey	Saint Helier
+Kosovo	Priština
+Lichtenštejnsko	Vaduz
+Litva	Vilnius
+Lotyšsko	Riga
+Lucembursko	Lucemburk
+Malta	Valletta
+Maďarsko	Budapešť
+Moldavsko	Kišiněv
+Monako	Monako
+Nizozemsko	Amsterdam
+Norsko	Oslo
+Německo	Berlín
+Ostrov Man	Douglas
+Polsko	Varšava
+Portugalsko	Lisabon
+Rakousko	Vídeň
+Rumunsko	Bukurešť
+Rusko	Moskva
+San Marino	City of San Marino
+Severní Makedonie	Skopje
+Slovensko	Bratislava
+Slovinsko	Lublaň
+Srbsko	Bělehrad
+Ukrajina	Kyjev
+Vatikán	Vatikán
+Velká Británie	Londýn
+Ålandy	Mariehamn
+Černá Hora	Podgorica
+Česko	Praha
+Řecko	Athény
+Španělsko	Madrid
+Špicberky a Jan Mayen	Longyearbyen
+Švédsko	Stockholm
+Švýcarsko	Bern
+# --- Asie ---
+Afghánistán	Kábul
+Arménie	Jerevan
+Bahrajn	Manáma
+Bangladéš	Dháka
+Bhútán	Thimphu
+Brunej	Bandar Seri Begawan
+Filipíny	Manila
+Gruzie	Tbilisi
+Hongkong	City of Victoria
+Indie	Nové Dillí
+Indonésie	Jakarta
+Irák	Bagdád
+Izrael	Jeruzalém
+Japonsko	Tokio
+Jemen	Saná
+Jižní Korea	Soul
+Jordánsko	Amman
+Kambodža	Phnompenh
+Katar	Doha
+Kazachstán	Astana
+Kuvajt	Kuvajt
+Kypr	Nikósie
+Kyrgyzstán	Biškek
+Laos	Vientiane
+Libanon	Bejrút
+Malajsie	Kuala Lumpur
+Maledivy	Malé
+Mongolsko	Ulan Bator
+Myanmar	Naypyidaw
+Nepál	Káthmándú
+Omán	Maskat
+Palestina	Ramalláh
+Pákistán	Islámábád
+Saúdská Arábie	Rijád
+Severní Korea	Pchjongjang
+Singapur	Singapur
+Spojené arabské emiráty	Abú Dhabí
+Srí Lanka	Šrí Džajawardenapura
+Sýrie	Damašek
+Tchaj-wan	Tchaj-pej
+Thajsko	Bangkok
+Turecko	Ankara
+Turkmenistán	Ašchabad
+Tádžikistán	Dušanbe
+Uzbekistán	Taškent
+Vietnam	Hanoi
+Východní Timor	Dili
+Ázerbájdžán	Baku
+Írán	Teherán
+Čína	Peking
+# --- Afrika ---
+Alžírsko	Alžír
+Angola	Luanda
+Benin	Porto-Novo
+Botswana	Gaborone
+Britské indickooceánské území	Diego Garcia
+Burkina Faso	Ouagadougou
+Burundi	Gitega
+DR Kongo	Kinshasa
+Džibutsko	Džibuti
+Egypt	Káhira
+Eritrea	Asmara
+Etiopie	Addis Abeba
+Gabon	Libreville
+Gambie	Banjul
+Ghana	Accra
+Guinea	Conakry
+Guinea-Bissau	Bissau
+Jihoafrická republika	Pretorie
+Jižní Súdán	Juba
+Kamerun	Yaoundé
+Kapverdy	Praia
+Keňa	Nairobi
+Komory	Moroni
+Kongo	Brazzaville
+Lesotho	Maseru
+Libye	Tripolis
+Libérie	Monrovia
+Madagaskar	Antananarivo
+Malawi	Lilongwe
+Mali	Bamako
+Maroko	Rabat
+Mauricius	Port Louis
+Mauritánie	Nouakchott
+Mayotte	Mamoudzou
+Mosambik	Maputo
+Namibie	Windhoek
+Niger	Niamey
+Nigérie	Abúdža
+Pobřeží slonoviny	Yamoussoukro
+Rovníková Guinea	Ciudad de la Paz
+Rwanda	Kigali
+Réunion	Saint-Denis
+Senegal	Dakar
+Seychely	Victoria
+Sierra Leone	Freetown
+Somálsko	Mogadišu
+Středoafrická republika	Bangui
+Svatá Helena, Ascension a Tristan da Cunha	Jamestown
+Svatý Tomáš a Princův ostrov	São Tomé
+Svazijsko	Mbabane
+Súdán	Chartúm
+Tanzanie	Dodoma
+Togo	Lomé
+Tunisko	Tunis
+Uganda	Kampala
+Zambie	Lusaka
+Zimbabwe	Harare
+Západní Sahara	El Aaiún
+Čad	N'Djamena
+# --- Severní Amerika ---
+Bermudy	Hamilton
+Grónsko	Nuuk
+Kanada	Ottawa
+Menší odlehlé ostrovy USA	Washington DC
+Mexiko	Mexico City
+Saint-Pierre a Miquelon	Saint-Pierre
+Spojené státy americké	Washington
+# --- Střední Amerika ---
+Belize	Belmopan
+Guatemala	Guatemala City
+Honduras	Tegucigalpa
+Kostarika	San José
+Nikaragua	Managua
+Panama	Panama
+Salvador	San Salvador
+# --- Karibik ---
+Americké Panenské ostrovy	Charlotte Amalie
+Anguilla	The Valley
+Antigua a Barbuda	Saint John's
+Aruba	Oranjestad
+Bahamy	Nassau
+Barbados	Bridgetown
+Britské Panenské ostrovy	Road Town
+Curaçao	Willemstad
+Dominika	Roseau
+Dominikánská republika	Santo Domingo
+Grenada	Saint George's
+Guadeloupe	Basse-Terre
+Haiti	Port-au-Prince
+Jamajka	Kingston
+Kajmanské ostrovy	George Town
+Karibské Nizozemsko	Kralendijk
+Kuba	Havana
+Martinik	Fort-de-France
+Montserrat	Plymouth
+Portoriko	San Juan
+Svatá Lucie	Castries
+Svatý Bartoloměj	Gustavia
+Svatý Kryštof a Nevis	Basseterre
+Svatý Martin (Francie)	Marigot
+Svatý Martin (Nizozemsko)	Philipsburg
+Svatý Vincenc a Grenadiny	Kingstown
+Trinidad a Tobago	Port of Spain
+Turks a Caicos	Cockburn Town
+# --- Jižní Amerika ---
+Argentina	Buenos Aires
+Bolívie	Sucre
+Brazílie	Brasília
+Chile	Santiago
+Ekvádor	Quito
+Falklandy	Stanley
+Francouzská Guyana	Cayenne
+Guyana	Georgetown
+Kolumbie	Bogotá
+Paraguay	Asunción
+Peru	Lima
+Surinam	Paramaribo
+Uruguay	Montevideo
+Venezuela	Caracas
+# --- Oceánie ---
+Americká Samoa	Pago Pago
+Austrálie	Canberra
+Cookovy ostrovy	Avarua
+Fidži	Suva
+Francouzská Polynésie	Papeetē
+Guam	Hagåtña
+Kiribati	South Tarawa
+Kokosové ostrovy	West Island
+Marshallovy ostrovy	Majuro
+Mikronésie	Palikir
+Nauru	Yaren
+Niue	Alofi
+Norfolk	Kingston
+Nová Kaledonie	Nouméa
+Nový Zéland	Wellington
+Palau	Ngerulmud
+Papua-Nová Guinea	Port Moresby
+Pitcairnovy ostrovy	Adamstown
+Samoa	Apia
+Severní Mariany	Saipan
+Tokelau	Fakaofo
+Tonga	Nuku'alofa
+Tuvalu	Funafuti
+Vanuatu	Port Vila
+Vánoční ostrov	Flying Fish Cove
+Wallis a Futuna	Mata-Utu
+Šalamounovy ostrovy	Honiara
+# --- Antarktida ---
+Francouzská jižní a antarktická území	Port-aux-Français
+Jižní Georgie a Jižní Sandwichovy ostrovy	King Edward Point

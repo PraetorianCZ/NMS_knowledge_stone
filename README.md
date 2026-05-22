@@ -1,56 +1,83 @@
+# NMS Words 2
 
-# NMS Words (ESP32-C3 mini + 1.28" TFT display with GC9A01 + Neopixel LEDs)
+Fork of **NMS Words** for ESP32-C3 + 1.28″ round GC9A01 TFT + NeoPixel ring.
 
-Lolin C3 Super Mini + 1.28″ round TFT — shows a random **English / alien** word pair on a schedule.
+## What is new
 
-**Timing:** After each word, the next one appears after a **uniform random delay** between **`NMS_WORD_RANDOM_MIN_SEC`** and **`NMS_WORD_RANDOM_MAX_SEC`**. In the last **`NMS_BACKGROUND_GAP_SEC`** seconds before each GitHub fetch, only the **backdrop** is shown (no text); NeoPixel colour stays the **previous word’s** accent until the new word is drawn.
+1. **Full UTF-8** — Czech etc. via `u8g2_font_unifont_t_extended`; main word via **helvB18/B24**; Autophage/Greek letters via **`u8g2_font_10x20_t_greek`** (`NMS_MAIN_WORD_USE_GREEK_FONT 0`, default).
+2. **Selectable dictionaries** — `NMS_DICTIONARIES` in `nms_config.h`, or empty = every file in GitHub `index.txt`.
+3. **Per-dictionary UI** — phrases, colours, layout, and label in each `.txt` as `# @…` (see [dictionaries/README.md](dictionaries/README.md)).
 
-**Word source:** GitHub **RAW** only. The sketch downloads `index.txt` from `NMS_GITHUB_WORDS_BASE_URL`, picks a random listed `.txt` file, then a random tab-separated line (`english<TAB>alien`).
+## Hardware & libraries
 
-Use a **RAW** URL (`https://raw.githubusercontent.com/user/repo/branch/folder`). Browser `github.com/.../blob/...` links return HTML; the firmware can rewrite blob/tree URLs to RAW, but setting RAW directly is clearest.
+Wiring: `TFT_eSPI/User_Setup.h`.
 
-## Hardware
+Install: **TFT_eSPI**, **Adafruit NeoPixel**, **U8g2**, **U8g2_for_TFT_eSPI**. Copy `User_Setup.h` into Arduino `libraries/TFT_eSPI/`.
 
-- **MCU:** ESP32-C3 (e.g. Lolin C3 Super Mini)
-- **Display:** GC9A01 (SPI)
-- **Library:** TFT_eSPI (Bodmer)
+## Sketch
 
-Configure SPI pins in TFT_eSPI (`User_Setup.h` or `User_Setup_Select.h`):
-
-<img width="896" height="954" alt="knowledgeStone_schema" src="https://github.com/user-attachments/assets/08a275e8-c83d-4395-8ae4-674ef2016287" />
-
-- `#define GC9A01_DRIVER`
-- Correct `TFT_MOSI`, `TFT_SCLK`, `TFT_CS`, `TFT_DC`, `TFT_RST`, optional `TFT_BL`
-
-## Software
-
-Install **TFT_eSPI** and **Adafruit NeoPixel** in Arduino IDE or PlatformIO.
-
-Sketch: **`NMS_Words.ino`** (Arduino sketch folder must match the `.ino` name).
-
-NeoPixel colour tracks the **race accent** (same RGB as the alien word): set **`LED_PIN`**, **`LED_COUNT`**, and optionally **`NMS_LED_BRIGHTNESS`** (`0`–`255`) in `nms_config.h`.
+Open **`NMS_Words2/NMS_Words2.ino`**. Copy `nms_config.example.h` → `nms_config.h`.
 
 ## Configuration (`nms_config.h`)
 
-Copy from `nms_config.example.h` if needed (keep secrets out of git — see repo `.gitignore`).
-
 | Define | Meaning |
 |--------|---------|
-| `NMS_WIFI_SSID` / `NMS_WIFI_PASSWORD` | Wi-Fi credentials |
-| **`NMS_GITHUB_WORDS_BASE_URL`** | RAW URL of folder containing **`index.txt`** (no trailing `/`) |
-| **`NMS_WORD_RANDOM_MIN_SEC`** / **`NMS_WORD_RANDOM_MAX_SEC`** | Next word appears after a random delay in this inclusive range (seconds) |
-| **`NMS_BACKGROUND_GAP_SEC`** | Before each fetch, show **backdrop only** for this many seconds; `0` = off. If larger than the chosen random period, it is clamped |
-| **`NMS_SHOW_CLOCK`** | `1` = show `HH:MM` at bottom of TFT; `0` = hide (NTP still used for timing) |
-| **`NMS_TFT_ROTATION`** | `0`–`3` — TFT_eSPI rotation (`setRotation`). **`2`** = 180° flip |
-| **`NMS_ACCENT_BORDER_PX`** | Thickness (px) of a **circular ring** at the display edge in the race accent colour (matches alien word / NeoPixel). **`0`** disables |
-| **`NMS_TZ_OFFSET_SECONDS`** | Fixed offset from UTC for `localtime` (e.g. Prague +2 h → `7200`) |
+| `NMS_WIFI_SSID` / `NMS_WIFI_PASSWORD` | Wi-Fi |
+| `NMS_GITHUB_WORDS_BASE_URL` | Folder with `index.txt` + `*.txt` (RAW or `github.com/.../blob/...`, auto-converted) |
+| `NMS_DICTIONARIES` | Allowlist, e.g. `"gek,capitals_cs"`; `""` = all from `index.txt` (max **8** names) |
+| `NMS_WORD_RANDOM_MIN_SEC` / `MAX` | Delay until next word |
+| `NMS_BACKGROUND_GAP_SEC` | Backdrop-only seconds before fetch; `0` = off |
+| `NMS_WORD_DISPLAY_MODE` | Default layout if no `# @display` (`0` / `1` / `2`) |
+| `NMS_SHOW_CLOCK` / `NMS_CLOCK_24H` | Clock at bottom; `1` = 24h, `0` = 12h AM/PM |
+| `NMS_SHOW_DICT_NAME` / `NMS_DICT_NAME_BASELINE_Y` | `# @name` at top; vertical position (px) |
+| `NMS_MAIN_WORD_FONT_SIZE` | `0` / `1` / `2` — main word size |
+| `NMS_PHRASE_FONT_SIZE` | `0` = small phrase font; `1` = same as main word |
+| `NMS_MAIN_WORD_USE_GREEK_FONT` | `0` = large Greek font; `1` = small legacy unifont |
+| `NMS_ACCENT_BORDER_PX` | Accent ring; `0` = off |
+| `LED_PIN` / `LED_COUNT` | NeoPixel |
 
-Timezone is a fixed offset; correct DST would need a TZ string in `configTime`.
+### On-screen layout (mode 1, default)
 
-### Optional background bitmap
+Top → bottom: optional **dictionary name** · **large word** (column 2) · **phrase1 / phrase2** · **reference** (column 1) · optional **clock**.
 
-Add **`nms_bg565.h`** (RGB565, same resolution as the panel). If colours are wrong after `pushImage`, toggle **`NMS_BG565_PUSH_SWAP_BYTES`** in config.
+```c
+#define NMS_DICTIONARIES "capitals_cs,elements_cs"
+#define NMS_WORD_DISPLAY_MODE 1
+#define NMS_SHOW_DICT_NAME 1
+#define NMS_DICT_NAME_BASELINE_Y 29
+```
 
-### Accented Latin on screen
+### Dictionary metadata (in each `.txt`)
 
-Built-in GLCD fonts do not include Czech (or other) accented glyphs. **`nms_tft_latin_fold.h`** folds UTF-8 Latin to ASCII for display. True accented rendering needs a smooth font (`.vlw`) and LittleFS — not included here.
+```text
+# @name: Hlavní města
+# @phrase1: Hlavní město země
+# @phrase2:
+# @quote: 0
+# @accent: #46BEE6
+# @accent_ref: #9AD4EE
+země	Brusel
+```
+
+See [dictionaries/README.md](dictionaries/README.md) for all `@` keys — edit them directly in each `.txt` header.
+
+### Topic dictionaries
+
+| Files | Content |
+|-------|---------|
+| `capitals_cs.txt` / `capitals_en.txt` | country · capital |
+| `elements_cs.txt` / `elements_en.txt` | name · symbol (118 elements) |
+
+## Boot screen
+
+Setup shows centered UTF-8: `starting...`, `WiFi OK` / `WiFi failed`, `GitHub OK` / `GitHub failed`.
+
+## vs NMS Words
+
+| | NMS Words | NMS Words 2 |
+|---|-----------|---------------|
+| Text | GLCD + Latin fold | U8g2 UTF-8 |
+| Dictionaries | `index.txt` only | Allowlist + per-file `# @…` |
+| Phrases / colours | In firmware | In each `.txt` |
+
+Original: `../NMS_Words/`.

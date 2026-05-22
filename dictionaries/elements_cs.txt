@@ -1,0 +1,131 @@
+# @name: Prvky
+# @phrase1: Chemický prvek
+# @phrase2: má značku
+# @quote: 0
+# @accent: #5CE08A
+# @accent_ref: #B8F0D0
+# --- 1. perioda ---
+Vodík	H
+Helium	He
+# --- 2. perioda ---
+Lithium	Li
+Beryllium	Be
+Bor	B
+Uhlík	C
+Dusík	N
+Kyslík	O
+Fluor	F
+Neon	Ne
+# --- 3. perioda ---
+Sodík	Na
+Hořčík	Mg
+Hliník	Al
+Křemík	Si
+Fosfor	P
+Síra	S
+Chlor	Cl
+Argon	Ar
+# --- 4. perioda ---
+Draslík	K
+Vápník	Ca
+Skandium	Sc
+Titan	Ti
+Vanad	V
+Chrom	Cr
+Mangan	Mn
+Železo	Fe
+Kobalt	Co
+Nikl	Ni
+Měď	Cu
+Zinek	Zn
+Gallium	Ga
+Germanium	Ge
+Arsen	As
+Selen	Se
+Brom	Br
+Krypton	Kr
+# --- 5. perioda ---
+Rubidium	Rb
+Strontium	Sr
+Yttrium	Y
+Zirkonium	Zr
+Niob	Nb
+Molybden	Mo
+Technecium	Tc
+Ruthenium	Ru
+Rhodium	Rh
+Palladium	Pd
+Stříbro	Ag
+Kadmium	Cd
+Indium	In
+Cín	Sn
+Antimon	Sb
+Tellur	Te
+Jód	I
+Xenon	Xe
+# --- 6. perioda ---
+Cesium	Cs
+Baryum	Ba
+Lanthan	La
+Cerium	Ce
+Praseodym	Pr
+Neodym	Nd
+Promethium	Pm
+Samarium	Sm
+Europium	Eu
+Gadolinium	Gd
+Terbium	Tb
+Dysprosium	Dy
+Holmium	Ho
+Erbium	Er
+Thulium	Tm
+Ytterbium	Yb
+Lutecium	Lu
+Hafnium	Hf
+Tantal	Ta
+Wolfram	W
+Rhenium	Re
+Osmium	Os
+Iridium	Ir
+Platina	Pt
+Zlato	Au
+Rtuť	Hg
+Thallium	Tl
+Olovo	Pb
+Bismut	Bi
+Polonium	Po
+Astat	At
+Radon	Rn
+# --- 7. perioda ---
+Francium	Fr
+Radium	Ra
+Aktinium	Ac
+Thorium	Th
+Protactinium	Pa
+Uran	U
+Neptunium	Np
+Plutonium	Pu
+Americium	Am
+Curium	Cm
+Berkelium	Bk
+Kalifornium	Cf
+Einsteinium	Es
+Fermium	Fm
+Mendelevium	Md
+Nobelium	No
+Lawrencium	Lr
+Rutherfordium	Rf
+Dubnium	Db
+Seaborgium	Sg
+Bohrium	Bh
+Hassium	Hs
+Meitnerium	Mt
+Darmstadtium	Ds
+Roentgenium	Rg
+Kopernicium	Cn
+Nihonium	Nh
+Flerovium	Fl
+Moskovium	Mc
+Livermorium	Lv
+Tenness	Ts
+Oganesson	Og

@@ -1,3 +1,9 @@
+# @name: Gek
+# @phrase1: You have learned the
+# @phrase2: Gek word for
+# @quote: 0
+# @accent: #FFCD41
+# @accent_ref: #C4B878
 give	unk
 high	kala
 docking	burtvi
