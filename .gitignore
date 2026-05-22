@@ -10,6 +10,9 @@ nms_config.h
 .vscode/
 .idea/
 
+# Arduino library — install locally, do not commit
+U8g2_for_TFT_eSPI-master/
+
 # Python
 __pycache__/
 *.py[cod]
