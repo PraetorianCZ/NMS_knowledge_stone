@@ -1,6 +1,6 @@
 # @name: Prvky
-# @phrase1: Chemický prvek
-# @phrase2: má značku
+# @phrase1: značka chemického
+# @phrase2: prvku
 # @quote: 0
 # @accent: #5CE08A
 # @accent_ref: #B8F0D0
