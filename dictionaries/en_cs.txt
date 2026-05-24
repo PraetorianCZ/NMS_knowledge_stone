@@ -1,5 +1,5 @@
 # @name: EN -> CZ
-# @phrase1: Naučili jste se
+# @phrase1: naučili jste se
 # @phrase2: anglické slovíčko pro
 # @quote: 0
 # @accent: #64A0FF
