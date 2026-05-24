@@ -1,6 +1,6 @@
 # @name: ES -> CZ
-# @phrase1: You have learned the
-# @phrase2: Spanish word for
+# @phrase1: naučili jste se
+# @phrase2: španělské slovíčko pro
 # @quote: 0
 # @accent: #FFC83C
 # @accent_ref: #C83C50
