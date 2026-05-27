@@ -10,6 +10,10 @@ ESP32-C3 + 1.28″ round GC9A01 TFT + NeoPixel ring.
 
 ## Hardware & libraries
 
+<img width="520" height="576" alt="Screenshot 2026-05-22 at 19 00 01" src="https://github.com/user-attachments/assets/e919cab5-1ab1-4234-8c9f-18e6ab183ba6" />
+
+
+
 Wiring: `TFT_eSPI/User_Setup.h`.
 
  Libraries: **TFT_eSPI**, **Adafruit NeoPixel**, **U8g2**, **U8g2_for_TFT_eSPI**. Copy `User_Setup.h` into Arduino `libraries/TFT_eSPI/`.
